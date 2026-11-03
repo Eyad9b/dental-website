@@ -16,6 +16,8 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  const onDark = !scrolled;
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
@@ -29,7 +31,7 @@ export function Navbar() {
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white shadow-md shadow-brand-600/30">
             <Smile className="h-5 w-5" aria-hidden="true" />
           </span>
-          <span className="text-lg font-bold tracking-tight text-brand-900">{clinic.name}</span>
+          <span className={`text-lg font-bold tracking-tight transition-colors duration-500 ${onDark ? 'text-white' : 'text-brand-900'}`}>{clinic.name}</span>
         </a>
 
         <ul className="hidden items-center gap-1 lg:flex">
@@ -37,7 +39,7 @@ export function Navbar() {
             <li key={link.href}>
               <a
                 href={link.href}
-                className="relative rounded-full px-3.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:text-brand-700 after:absolute after:bottom-1 after:left-3.5 after:right-3.5 after:h-px after:origin-left after:scale-x-0 after:bg-brand-500 after:transition-transform after:duration-300 hover:after:scale-x-100"
+                className={`relative rounded-full px-3.5 py-2 text-sm font-medium transition-colors after:absolute after:bottom-1 after:left-3.5 after:right-3.5 after:h-px after:origin-left after:scale-x-0 after:bg-brand-400 ${onDark ? 'text-white/80 hover:text-white' : 'text-slate-700 hover:text-brand-700'} after:transition-transform after:duration-300 hover:after:scale-x-100`}
               >
                 {link.label}
               </a>
@@ -48,7 +50,7 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <a
             href={clinic.phoneHref}
-            className="hidden items-center gap-2 text-sm font-semibold text-brand-800 transition-colors hover:text-brand-600 xl:flex"
+            className={`hidden items-center gap-2 text-sm font-semibold transition-colors xl:flex ${onDark ? 'text-white hover:text-accent-300' : 'text-brand-800 hover:text-brand-600'}`}
           >
             <Phone className="h-4 w-4" aria-hidden="true" />
             {clinic.phone}

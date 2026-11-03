@@ -1,172 +1,107 @@
 'use client';
 
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, BadgeCheck, CalendarClock, Star } from 'lucide-react';
 import Image from 'next/image';
-import { useRef } from 'react';
-import { HeroSmile } from './hero-smile';
+import dynamic from 'next/dynamic';
 
-const HERO_IMAGE =
-  'https://images.pexels.com/photos/3845553/pexels-photo-3845553.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop';
+// three.js is loaded only on the client, after the headline has painted.
+const HeroCanvas = dynamic(() => import('./hero-3d/hero-canvas'), { ssr: false });
+
+const ease = [0.22, 1, 0.36, 1] as const;
 
 export function Hero() {
-  const ref = useRef<HTMLElement>(null);
   const reduceMotion = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '22%']);
-  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '-10%']);
-  const fade = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  // Text follows the camera move so the opening reads as one sequence.
+  const at = (delay: number) => ({
+    initial: reduceMotion ? false : { opacity: 0, y: 22 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 1, delay: reduceMotion ? 0 : delay, ease },
+  });
 
   return (
     <section
       id="top"
-      ref={ref}
-      className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-brand-50 pt-28 pb-20 sm:pt-32"
+      className="relative isolate overflow-hidden bg-[#051019] text-white lg:flex lg:min-h-[100svh] lg:items-center"
     >
-      <motion.div
-        className="absolute inset-0 -z-10 h-[120%] -top-[10%]"
-        style={reduceMotion ? undefined : { y: imageY }}
-      >
-        <Image
-          src={HERO_IMAGE}
-          alt="A dentist reviewing a treatment plan with a smiling patient in a bright clinic"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-[70%_center]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
-      </motion.div>
+      {/* atmosphere */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-20 bg-[radial-gradient(70%_80%_at_72%_46%,rgba(42,134,187,0.30),transparent_68%),radial-gradient(40%_50%_at_88%_80%,rgba(60,185,168,0.16),transparent_70%),linear-gradient(180deg,#07192a_0%,#051019_100%)]"
+      />
+      <div aria-hidden="true" className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-[#051019] to-transparent" />
 
-      <div aria-hidden="true" className="pointer-events-none absolute -right-32 top-24 -z-10 h-[28rem] w-[28rem] rounded-full bg-accent-200/50 blur-3xl animate-float-slow" />
-      <div aria-hidden="true" className="pointer-events-none absolute -left-24 bottom-10 -z-10 h-72 w-72 rounded-full bg-brand-200/60 blur-3xl animate-float-slow [animation-delay:-4s]" />
+      {/* 3D model: its own block on mobile, full-bleed behind the copy on desktop */}
+      <div className="relative -z-10 mt-20 h-[24rem] sm:h-[30rem] lg:absolute lg:inset-0 lg:mt-0 lg:h-full">
+        <HeroCanvas />
+      </div>
 
-      <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-5 sm:px-8 lg:grid-cols-12">
-        <motion.div
-          style={reduceMotion ? undefined : { y: contentY, opacity: fade }}
-          className="lg:col-span-7"
-        >
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-brand-700 shadow-sm backdrop-blur"
-          >
+      <div className="relative mx-auto w-full max-w-7xl px-5 pb-16 pt-4 sm:px-8 lg:pb-20 lg:pt-32">
+        <div className="max-w-xl lg:max-w-[34rem]">
+          <motion.p {...at(1.1)} className="inline-flex items-center gap-2.5 text-sm font-medium text-brand-200">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-500" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-400" />
             </span>
             Now accepting new patients
           </motion.p>
 
           <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 text-4xl font-bold leading-[1.1] tracking-tight text-brand-900 sm:text-5xl lg:text-6xl xl:text-7xl"
+            {...at(1.2)}
+            className="mt-6 text-4xl font-semibold leading-[1.06] tracking-[-0.025em] sm:text-5xl lg:text-6xl xl:text-[4.25rem]"
           >
             Expert care for a smile you&apos;re proud to share.
           </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg"
-          >
-            Gentle, modern dentistry from a team that puts your comfort first. From routine check-ups to
-            complete smile makeovers, we explain every step so you can feel confident in your care.
+          <motion.p {...at(1.35)} className="mt-6 max-w-md text-base leading-relaxed text-brand-100/80 sm:text-lg">
+            Gentle, modern dentistry from a team that puts your comfort first. From routine check-ups to complete smile
+            makeovers, we explain every step so you can feel confident in your care.
           </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
-          >
+          <motion.div {...at(1.5)} className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
             <a
               href="#book"
-              className="group inline-flex items-center justify-center gap-2 rounded-full bg-brand-600 px-7 py-4 text-base font-semibold text-white shadow-xl shadow-brand-600/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-2xl"
+              className="group inline-flex items-center justify-center gap-2 rounded-full bg-accent-400 px-7 py-4 text-base font-semibold text-[#04202a] shadow-xl shadow-accent-400/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-accent-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               Book Appointment
               <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
             </a>
             <a
               href="#contact"
-              className="inline-flex items-center justify-center rounded-full border border-brand-200 bg-white/80 px-7 py-4 text-base font-semibold text-brand-800 backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-400 hover:bg-white"
+              className="inline-flex items-center justify-center rounded-full border border-white/25 px-7 py-4 text-base font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-white/60 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               Contact Us
             </a>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="mt-10 flex items-center gap-4"
-          >
-            <div className="flex -space-x-3">
-              {[
-                'https://images.pexels.com/photos/16869444/pexels-photo-16869444.jpeg?auto=compress&cs=tinysrgb&w=120&h=120&fit=crop',
-                'https://images.pexels.com/photos/6102841/pexels-photo-6102841.jpeg?auto=compress&cs=tinysrgb&w=120&h=120&fit=crop',
-                'https://images.pexels.com/photos/35490806/pexels-photo-35490806.jpeg?auto=compress&cs=tinysrgb&w=120&h=120&fit=crop',
-              ].map((src) => (
-                <Image
-                  key={src}
-                  src={src}
-                  alt=""
-                  width={44}
-                  height={44}
-                  className="h-11 w-11 rounded-full border-2 border-white object-cover"
-                />
-              ))}
-            </div>
-            <div>
-              <div className="flex items-center gap-0.5" aria-label="Rated 4.9 out of 5">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <Star key={index} className="h-4 w-4 fill-amber-400 text-amber-400" aria-hidden="true" />
+          <motion.div {...at(1.7)} className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-5 border-t border-white/10 pt-6">
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-3">
+                {[
+                  'https://images.pexels.com/photos/16869444/pexels-photo-16869444.jpeg?auto=compress&cs=tinysrgb&w=120&h=120&fit=crop',
+                  'https://images.pexels.com/photos/6102841/pexels-photo-6102841.jpeg?auto=compress&cs=tinysrgb&w=120&h=120&fit=crop',
+                  'https://images.pexels.com/photos/35490806/pexels-photo-35490806.jpeg?auto=compress&cs=tinysrgb&w=120&h=120&fit=crop',
+                ].map((src) => (
+                  <Image key={src} src={src} alt="" width={40} height={40} className="h-10 w-10 rounded-full border-2 border-[#07192a] object-cover" />
                 ))}
               </div>
-              <p className="text-sm font-medium text-slate-700">Rated 4.9 by 1,800+ patients</p>
-            </div>
-          </motion.div>
-        </motion.div>
-
-        <div className="relative flex h-[28rem] items-center justify-center lg:col-span-5 lg:h-[32rem]">
-          <HeroSmile />
-          <motion.div
-            initial={{ opacity: 0, x: 24, y: -12 }}
-            animate={{ opacity: 1, x: 0, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.6 }}
-            className="absolute -right-2 top-0 hidden animate-float rounded-2xl sm:block border border-white/70 bg-white/70 px-5 py-4 shadow-xl shadow-brand-900/10 backdrop-blur-xl"
-          >
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-100 text-accent-600">
-                <BadgeCheck className="h-5 w-5" aria-hidden="true" />
-              </span>
               <div>
-                <p className="text-sm font-bold text-brand-900">Board-certified</p>
-                <p className="text-xs text-slate-600">Specialist dentists</p>
+                <div className="flex items-center gap-0.5" aria-label="Rated 4.9 out of 5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" aria-hidden="true" />
+                  ))}
+                </div>
+                <p className="text-sm text-brand-100/80">Rated 4.9 by 1,800+ patients</p>
               </div>
             </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: -24, y: 12 }}
-            animate={{ opacity: 1, x: 0, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.8 }}
-            className="absolute -left-2 bottom-4 hidden animate-float-slow rounded-2xl sm:block border border-white/70 bg-white/70 px-5 py-4 shadow-xl shadow-brand-900/10 backdrop-blur-xl"
-          >
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-100 text-brand-700">
-                <CalendarClock className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <div>
-                <p className="text-sm font-bold text-brand-900">Same-day visits</p>
-                <p className="text-xs text-slate-600">Emergency slots daily</p>
-              </div>
-            </div>
+            <p className="flex items-center gap-2 text-sm text-brand-100/80">
+              <BadgeCheck className="h-5 w-5 text-accent-400" aria-hidden="true" />
+              Board-certified specialists
+            </p>
+            <p className="flex items-center gap-2 text-sm text-brand-100/80">
+              <CalendarClock className="h-5 w-5 text-accent-400" aria-hidden="true" />
+              Same-day emergency visits
+            </p>
           </motion.div>
         </div>
       </div>
