@@ -9,6 +9,7 @@ import {
   Syringe,
   type LucideIcon,
 } from 'lucide-react';
+import { photos, type PhotoRef } from './site-images';
 
 export const clinic = {
   name: 'Crestview Dental',
@@ -39,6 +40,8 @@ export type Service = {
   title: string;
   description: string;
   icon: LucideIcon;
+  kicker: string;
+  photo: PhotoRef;
 };
 
 export const services: Service[] = [
@@ -46,31 +49,43 @@ export const services: Service[] = [
     title: 'Teeth Whitening',
     description: 'Professional in-office whitening that lifts stains safely for a visibly brighter smile in one visit.',
     icon: Sparkles,
+    kicker: 'In-office whitening',
+    photo: photos.whitening,
   },
   {
     title: 'Dental Implants',
     description: 'Permanent, natural-looking tooth replacements designed around your bite, comfort and long-term health.',
     icon: Anchor,
+    kicker: 'Single tooth to full arch',
+    photo: photos.implants,
   },
   {
     title: 'Orthodontics',
     description: 'Clear aligners and braces for all ages, planned with digital scans for precise, comfortable results.',
     icon: Ruler,
+    kicker: 'Clear aligners and braces',
+    photo: photos.orthodontics,
   },
   {
     title: 'Root Canal Treatment',
     description: 'Modern, pain-minimised endodontic care that saves your natural tooth and relieves discomfort.',
     icon: Syringe,
+    kicker: 'Gentle endodontic care',
+    photo: photos.rootCanal,
   },
   {
     title: 'Cosmetic Dentistry',
     description: 'Veneers, bonding and smile makeovers crafted to harmonise with your face and personal style.',
     icon: Crown,
+    kicker: 'Veneers, bonding, makeovers',
+    photo: photos.cosmetic,
   },
   {
     title: 'Emergency Dental Care',
     description: 'Same-day appointments for toothaches, broken teeth and urgent problems when you need relief fast.',
     icon: Ambulance,
+    kicker: 'Relief when you need it fast',
+    photo: photos.emergency,
   },
 ];
 

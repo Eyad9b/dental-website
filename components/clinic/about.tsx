@@ -1,9 +1,7 @@
-'use client';
-
 import { ArrowRight, GraduationCap, HeartHandshake } from 'lucide-react';
-import { useState } from 'react';
+import { photos, photoUrl, type PhotoRef } from '@/lib/site-images';
+import { Photo } from './photo';
 import { Reveal } from './reveal';
-import { ToothStudy, type StudyMode, type StudyName } from './tooth-studies';
 
 const credentials = [
   'Doctor of Dental Surgery, Riverside University',
@@ -11,58 +9,32 @@ const credentials = [
   'Advanced implantology and sedation certified',
 ];
 
-const CAPTIONS: Record<StudyMode, Record<StudyName, string>> = {
-  amber: {
-    incisor: 'Enamel, labial view',
-    canine: 'Dentin and pulp canal',
-    section: 'Rods, cross-section',
-    crowns: 'Crown surface texture',
-  },
-  uv: {
-    incisor: 'Enamel under UV light',
-    canine: 'Dentin fluorescence',
-    section: 'Rods under UV',
-    crowns: 'Surface under UV light',
-  },
-};
-
 function Panel({
-  study,
-  mode,
+  photo,
+  size,
   className = '',
   delay = 0,
 }: {
-  study: StudyName;
-  mode: StudyMode;
+  photo: PhotoRef;
+  size: [number, number];
   className?: string;
   delay?: number;
 }) {
   return (
     <Reveal delay={delay} className={className}>
-      <figure className="group relative h-full w-full overflow-hidden bg-black shadow-[0_18px_40px_-18px_rgba(40,28,16,0.55)] transition-transform duration-700 ease-out hover:-translate-y-1.5">
-        {(['amber', 'uv'] as const).map((m) => (
-          <div
-            key={m}
-            className={`absolute inset-0 transition-opacity duration-[1100ms] ease-in-out ${mode === m ? 'opacity-100' : 'opacity-0'}`}
-          >
-            <div className="h-full w-full transition-transform duration-[1600ms] ease-out group-hover:scale-[1.04]">
-              <ToothStudy study={study} mode={m} />
-            </div>
-          </div>
-        ))}
-        <figcaption className="pointer-events-none absolute bottom-3 left-3 hidden text-[10px] sm:block font-semibold uppercase tracking-[0.18em] text-white/60">
-          {CAPTIONS[mode][study]}
-        </figcaption>
+      <figure className="group relative h-full w-full overflow-hidden bg-[#0b1218] shadow-[0_18px_40px_-18px_rgba(20,30,40,0.55)] transition-transform duration-700 ease-out hover:-translate-y-1.5">
+        <Photo
+          src={photoUrl(photo, size[0], size[1])}
+          className="h-full w-full object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.05]"
+        />
       </figure>
     </Reveal>
   );
 }
 
 export function About() {
-  const [mode, setMode] = useState<StudyMode>('amber');
-
   return (
-    <section id="about" className="scroll-mt-24 overflow-hidden bg-[#f8f3ee] py-24 sm:py-32">
+    <section id="about" className="scroll-mt-24 overflow-hidden bg-white py-24 sm:py-32">
       <div className="mx-auto grid max-w-7xl items-center gap-16 px-5 sm:px-8 lg:grid-cols-[1fr_1.05fr] lg:gap-20">
         {/* copy */}
         <div>
@@ -125,41 +97,15 @@ export function About() {
           </Reveal>
         </div>
 
-        {/* collage */}
-        <div>
-          <div className="mx-auto grid max-w-xl grid-cols-[1.12fr_1fr] gap-3 sm:gap-4 lg:max-w-none">
-            <div className="flex flex-col gap-3 sm:gap-4">
-              <Panel study="incisor" mode={mode} className="aspect-[3/4.3]" />
-              <Panel study="section" mode={mode} delay={0.15} className="aspect-[3/2] w-[68%] self-end" />
-            </div>
-            <div className="flex flex-col gap-3 pt-10 sm:gap-4 sm:pt-14">
-              <Panel study="canine" mode={mode} delay={0.1} className="aspect-[11/17] w-[82%]" />
-              <Panel study="crowns" mode={mode} delay={0.25} className="aspect-square" />
-            </div>
+        {/* photo collage */}
+        <div className="mx-auto grid w-full max-w-xl grid-cols-[1.12fr_1fr] gap-3 sm:gap-4 lg:max-w-none">
+          <div className="flex flex-col gap-3 sm:gap-4">
+            <Panel photo={photos.aboutSmile} size={[800, 1150]} className="aspect-[3/4.3]" />
+            <Panel photo={photos.aboutConsult} size={[700, 470]} delay={0.15} className="aspect-[3/2] w-[68%] self-end" />
           </div>
-
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4 lg:justify-end">
-            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">View under</span>
-            <div role="group" aria-label="Lighting for tooth studies" className="flex rounded-full border border-brand-900/15 bg-white/60 p-1">
-              {(
-                [
-                  ['amber', 'Natural light'],
-                  ['uv', 'Fluorescence'],
-                ] as const
-              ).map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  aria-pressed={mode === value}
-                  onClick={() => setMode(value)}
-                  className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 ${
-                    mode === value ? 'bg-brand-900 text-white' : 'text-brand-800 hover:text-brand-600'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+          <div className="flex flex-col gap-3 pt-10 sm:gap-4 sm:pt-14">
+            <Panel photo={photos.aboutCare} size={[660, 1020]} delay={0.1} className="aspect-[11/17] w-[82%]" />
+            <Panel photo={photos.aboutXray} size={[800, 800]} delay={0.25} className="aspect-square" />
           </div>
         </div>
       </div>
